@@ -1,0 +1,20 @@
+{
+  "name": "3dgs-demo",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@mkkellogg/gaussian-splats-3d": "^0.4.7",
+    "astro": "^5.9.4",
+    "gsap": "^3.13.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "vite-plugin-cross-origin-isolation": "^0.1.6"
+  }
+}
