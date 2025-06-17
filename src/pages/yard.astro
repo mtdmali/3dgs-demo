@@ -31,167 +31,167 @@ import Grid from '../components/Grid.astro'
 </Layout>
 
 <script>
-  import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d'
-  import * as THREE from 'three'
-  import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-  import { gsap } from 'gsap/dist/all'
+  // import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d'
+  // import * as THREE from 'three'
+  // import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+  // import { gsap } from 'gsap/dist/all'
 
-  const splat = `/models/yard-hd-oriented.ksplat`
+  // const splat = `/models/yard-hd-oriented.ksplat`
 
-  const coords = {
-    initial: { position: [0.993, -0.81, -1.774], target: [-0.342, -0.837, -0.201] },
-    center: { position: [0.294, -0.824, -0.95], target: [-0.342, -0.837, -0.201] },
-    latch: { position: [0.109, -1.15, 0.65], target: [0.121, -1.152, 1.051] },
-    dog: { position: [-0.158, -0.243, 0.303], target: [0.015, -0.227, 1.043] },
-    angel: { position: [0.838, -0.447, -0.719], target: [1.512, -0.238, -0.537] },
-    flowers: { position: [-0.834, -0.93, -0.853], target: [-1.638, -0.606, -0.35] },
-    sign: { position: [-2.435, -1.653, 0.734], target: [-2.428, -1.617, 1.442] },
-  }
+  // const coords = {
+  //   initial: { position: [0.993, -0.81, -1.774], target: [-0.342, -0.837, -0.201] },
+  //   center: { position: [0.294, -0.824, -0.95], target: [-0.342, -0.837, -0.201] },
+  //   latch: { position: [0.109, -1.15, 0.65], target: [0.121, -1.152, 1.051] },
+  //   dog: { position: [-0.158, -0.243, 0.303], target: [0.015, -0.227, 1.043] },
+  //   angel: { position: [0.838, -0.447, -0.719], target: [1.512, -0.238, -0.537] },
+  //   flowers: { position: [-0.834, -0.93, -0.853], target: [-1.638, -0.606, -0.35] },
+  //   sign: { position: [-2.435, -1.653, 0.734], target: [-2.428, -1.617, 1.442] },
+  // }
 
-  const rootElement = document.querySelector('#root')
+  // const rootElement = document.querySelector('#root')
 
-  const threeScene = new THREE.Scene()
+  // const threeScene = new THREE.Scene()
 
-  const renderer = new THREE.WebGLRenderer({
-    antialias: false,
-    alpha: true,
-  })
-
-  const renderWidth = window.innerWidth
-  const renderHeight = window.innerHeight
-  renderer.setSize(renderWidth, renderHeight)
-  rootElement?.appendChild(renderer.domElement)
-
-  const camera = new THREE.PerspectiveCamera(50, renderWidth / renderHeight, 0.1, 1000)
-  camera.up.set(0, -1, 0)
-  camera.position.set(...coords.initial.position)
-  camera.lookAt(0, 0, 0)
-
-  const controls = new OrbitControls(camera, renderer.domElement)
-  // controls.autoRotate = true
-  // controls.autoRotateSpeed = -0.1
-  controls.enableDamping = true
-  controls.maxPolarAngle = 1.75
-  controls.minPolarAngle = 0.5
-  controls.maxAzimuthAngle = -1.5
-  controls.minAzimuthAngle = 1.7
-  controls.target.set(...coords.initial.target)
-
-  const viewer = new GaussianSplats3D.Viewer({
-    selfDrivenMode: false,
-    renderer: renderer,
-    camera: camera,
-    useBuiltInControls: false,
-    ignoreDevicePixelRatio: false,
-    enableSIMDInSort: true,
-    sharedMemoryForWorkers: true,
-    integerBasedSort: false,
-    halfPrecisionCovariancesOnGPU: false,
-    dynamicScene: false,
-    webXRMode: GaussianSplats3D.WebXRMode.None,
-    renderMode: GaussianSplats3D.RenderMode.Always,
-    sceneRevealMode: GaussianSplats3D.SceneRevealMode.Gradual,
-    antialiased: true,
-    focalAdjustment: 1,
-    logLevel: GaussianSplats3D.LogLevel.None,
-    sphericalHarmonicsDegree: 0,
-    enableOptionalEffects: false,
-    inMemoryCompressionLevel: 2,
-    freeIntermediateSplatData: false,
-    sceneFadeInRateMultiplier: 0.1,
-  })
-
-  viewer.addSplatScene(splat).then(() => {
-    requestAnimationFrame(update)
-  })
-
-  function update() {
-    requestAnimationFrame(update)
-    viewer.update()
-    viewer.render()
-    controls.update()
-    updateConsole()
-  }
-
-  moveCamera(coords.center.position, coords.center.target)
-
-  function moveCamera(position, target) {
-    gsap.to(camera.position, {
-      x: position[0],
-      y: position[1],
-      z: position[2],
-      duration: 3,
-      ease: 'power2.inOut',
-    })
-
-    gsap.to(controls.target, {
-      x: target[0],
-      y: target[1],
-      z: target[2],
-      duration: 3,
-      ease: 'power2.inOut',
-    })
-  }
-
-  const buttons = document.querySelectorAll('.buttons button')
-  buttons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const target = button.getAttribute('data-target')
-      if (coords[target]) {
-        moveCamera(coords[target].position, coords[target].target)
-      }
-    })
-  })
-
-  const copyButton = document.querySelector('[data-copy]')
-  copyButton.addEventListener('click', () => {
-    const position = camera.position
-      .toArray()
-      .map((v) => v.toFixed(3))
-      .join(', ')
-    const target = controls.target
-      .toArray()
-      .map((v) => v.toFixed(3))
-      .join(', ')
-    const coordsString = `{ position: [${position}], target: [${target}] }`
-    navigator.clipboard
-      .writeText(coordsString)
-      .then(() => {
-        console.log('Coordinates copied to clipboard:', coordsString)
-      })
-      .catch((err) => {
-        console.error('Failed to copy coordinates:', err)
-      })
-  })
-
-  const gridButton = document.querySelector('[data-grid]')
-  gridButton.addEventListener('click', () => {
-    document.querySelector('.grid')?.classList.toggle('is-visible')
-  })
-
-  // const focalAdjustmentInput = document.querySelector('#focalAdjustment')
-  // focalAdjustmentInput.addEventListener('input', (event) => {
-  //   const value = parseFloat(event.target.value)
-  //   viewer.focalAdjustment = value
+  // const renderer = new THREE.WebGLRenderer({
+  //   antialias: false,
+  //   alpha: true,
   // })
 
-  function updateConsole() {
-    const position = document.querySelector('[data-position]')
-    const target = document.querySelector('[data-target]')
-    const azimuth = document.querySelector('[data-azimuth]')
-    const polar = document.querySelector('[data-polar]')
+  // const renderWidth = window.innerWidth
+  // const renderHeight = window.innerHeight
+  // renderer.setSize(renderWidth, renderHeight)
+  // rootElement?.appendChild(renderer.domElement)
 
-    position.innerHTML = `${camera.position.x.toFixed(3)}, ${camera.position.y.toFixed(3)}, ${camera.position.z.toFixed(3)}`
-    target.innerHTML = `${controls.target.x.toFixed(3)}, ${controls.target.y.toFixed(3)}, ${controls.target.z.toFixed(3)}`
-    azimuth.innerHTML = `${controls.getAzimuthalAngle().toFixed(3)}`
-    polar.innerHTML = `${controls.getPolarAngle().toFixed(3)}`
-  }
+  // const camera = new THREE.PerspectiveCamera(50, renderWidth / renderHeight, 0.1, 1000)
+  // camera.up.set(0, -1, 0)
+  // camera.position.set(...coords.initial.position)
+  // camera.lookAt(0, 0, 0)
 
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-  })
+  // const controls = new OrbitControls(camera, renderer.domElement)
+  // // controls.autoRotate = true
+  // // controls.autoRotateSpeed = -0.1
+  // controls.enableDamping = true
+  // controls.maxPolarAngle = 1.75
+  // controls.minPolarAngle = 0.5
+  // controls.maxAzimuthAngle = -1.5
+  // controls.minAzimuthAngle = 1.7
+  // controls.target.set(...coords.initial.target)
+
+  // const viewer = new GaussianSplats3D.Viewer({
+  //   selfDrivenMode: false,
+  //   renderer: renderer,
+  //   camera: camera,
+  //   useBuiltInControls: false,
+  //   ignoreDevicePixelRatio: false,
+  //   enableSIMDInSort: true,
+  //   sharedMemoryForWorkers: true,
+  //   integerBasedSort: false,
+  //   halfPrecisionCovariancesOnGPU: false,
+  //   dynamicScene: false,
+  //   webXRMode: GaussianSplats3D.WebXRMode.None,
+  //   renderMode: GaussianSplats3D.RenderMode.Always,
+  //   sceneRevealMode: GaussianSplats3D.SceneRevealMode.Gradual,
+  //   antialiased: true,
+  //   focalAdjustment: 1,
+  //   logLevel: GaussianSplats3D.LogLevel.None,
+  //   sphericalHarmonicsDegree: 0,
+  //   enableOptionalEffects: false,
+  //   inMemoryCompressionLevel: 2,
+  //   freeIntermediateSplatData: false,
+  //   sceneFadeInRateMultiplier: 0.1,
+  // })
+
+  // viewer.addSplatScene(splat).then(() => {
+  //   requestAnimationFrame(update)
+  // })
+
+  // function update() {
+  //   requestAnimationFrame(update)
+  //   viewer.update()
+  //   viewer.render()
+  //   controls.update()
+  //   updateConsole()
+  // }
+
+  // moveCamera(coords.center.position, coords.center.target)
+
+  // function moveCamera(position, target) {
+  //   gsap.to(camera.position, {
+  //     x: position[0],
+  //     y: position[1],
+  //     z: position[2],
+  //     duration: 3,
+  //     ease: 'power2.inOut',
+  //   })
+
+  //   gsap.to(controls.target, {
+  //     x: target[0],
+  //     y: target[1],
+  //     z: target[2],
+  //     duration: 3,
+  //     ease: 'power2.inOut',
+  //   })
+  // }
+
+  // const buttons = document.querySelectorAll('.buttons button')
+  // buttons.forEach((button) => {
+  //   button.addEventListener('click', () => {
+  //     const target = button.getAttribute('data-target')
+  //     if (coords[target]) {
+  //       moveCamera(coords[target].position, coords[target].target)
+  //     }
+  //   })
+  // })
+
+  // const copyButton = document.querySelector('[data-copy]')
+  // copyButton.addEventListener('click', () => {
+  //   const position = camera.position
+  //     .toArray()
+  //     .map((v) => v.toFixed(3))
+  //     .join(', ')
+  //   const target = controls.target
+  //     .toArray()
+  //     .map((v) => v.toFixed(3))
+  //     .join(', ')
+  //   const coordsString = `{ position: [${position}], target: [${target}] }`
+  //   navigator.clipboard
+  //     .writeText(coordsString)
+  //     .then(() => {
+  //       console.log('Coordinates copied to clipboard:', coordsString)
+  //     })
+  //     .catch((err) => {
+  //       console.error('Failed to copy coordinates:', err)
+  //     })
+  // })
+
+  // const gridButton = document.querySelector('[data-grid]')
+  // gridButton.addEventListener('click', () => {
+  //   document.querySelector('.grid')?.classList.toggle('is-visible')
+  // })
+
+  // // const focalAdjustmentInput = document.querySelector('#focalAdjustment')
+  // // focalAdjustmentInput.addEventListener('input', (event) => {
+  // //   const value = parseFloat(event.target.value)
+  // //   viewer.focalAdjustment = value
+  // // })
+
+  // function updateConsole() {
+  //   const position = document.querySelector('[data-position]')
+  //   const target = document.querySelector('[data-target]')
+  //   const azimuth = document.querySelector('[data-azimuth]')
+  //   const polar = document.querySelector('[data-polar]')
+
+  //   position.innerHTML = `${camera.position.x.toFixed(3)}, ${camera.position.y.toFixed(3)}, ${camera.position.z.toFixed(3)}`
+  //   target.innerHTML = `${controls.target.x.toFixed(3)}, ${controls.target.y.toFixed(3)}, ${controls.target.z.toFixed(3)}`
+  //   azimuth.innerHTML = `${controls.getAzimuthalAngle().toFixed(3)}`
+  //   polar.innerHTML = `${controls.getPolarAngle().toFixed(3)}`
+  // }
+
+  // window.addEventListener('resize', () => {
+  //   renderer.setSize(window.innerWidth, window.innerHeight)
+  //   camera.aspect = window.innerWidth / window.innerHeight
+  //   camera.updateProjectionMatrix()
+  // })
 </script>
 
 <style>
